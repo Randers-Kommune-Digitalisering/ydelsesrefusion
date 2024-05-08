@@ -19,28 +19,28 @@ services:
     # volumes:
     #     - ./<local dir>:<container dir full path> E.g. /app/myfiles
 
-      depends_on: 
-        db:
-          condition: service_healthy
+  #   depends_on: 
+  #     db:
+  #       condition: service_healthy
 
-  db:
-    image: postgres:16.1
-    restart: always
-    # Open ports for testing
-    # ports:
-    #   - 5432:5432
-    environment:
-      POSTGRES_PASSWORD: pass
-      POSTGRES_USER: user
-      POSTGRES_DB: demo
-    healthcheck:
-      test: mysqladmin ping -h 127.0.0.1 -u root --password=pass
-      start_period: 5s
-      interval: 5s
-      timeout: 5s
-      retries: 55
-    networks:
-      - app_network
+  # db:
+  #   image: postgres:16.1
+  #   restart: always
+  #   # Open ports for testing
+  #   # ports:
+  #   #   - 5432:5432
+  #   environment:
+  #     POSTGRES_PASSWORD: pass
+  #     POSTGRES_USER: user
+  #     POSTGRES_DB: demo
+  #   healthcheck:
+  #     test: mysqladmin ping -h 127.0.0.1 -u root --password=pass
+  #     start_period: 5s
+  #     interval: 5s
+  #     timeout: 5s
+  #     retries: 55
+  #   networks:
+  #     - app_network
 
 networks: 
   app_network:
