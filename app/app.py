@@ -28,6 +28,24 @@ scheduler = BackgroundScheduler()
 # Get files every monday at noon
 scheduler.add_job(get_files_job, 'cron', day_of_week='mon', hour=12)
 
+file_list, conn = list_all_files()
+print(file_list)
+
+@app.route("/filelist")
+def hello() -> str:
+    return file_list
+
+# handle_files(file_list, conn)
+
+def handle_files(files, connection):
+    for filename in files:
+        # Open file
+        with connection.open(os.path.join(REMOTE_DIR, filename).replace("\\","/")) as f:
+            # CSV file open as f, do something with it
+            # E.g. read into pandas dataframe
+            df = pd.read_csv(f, sep=';', engine='python')
+
+
 
 if __name__ == "__main__":  # pragma: no cover
     scheduler.start()
