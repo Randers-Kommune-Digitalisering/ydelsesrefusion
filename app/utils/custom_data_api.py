@@ -2,7 +2,7 @@ import requests
 import logging
 import urllib.parse
 
-from config import CUSTOM_DATA_CONNECTOR_HOST
+from utils.config import CUSTOM_DATA_CONNECTOR_HOST
 
 def post_to_custom_data_connector(filename, file):
     encoded_filename = urllib.parse.quote(filename)
