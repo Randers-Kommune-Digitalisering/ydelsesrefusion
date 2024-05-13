@@ -30,7 +30,7 @@ scheduler.add_job(get_files_job, 'cron', day_of_week='mon', hour=12)
 
 if __name__ == "__main__":  # pragma: no cover
     
-    # Kør ved første deployment
+    # Kør ved første deployment (før tidsplan)
     get_files_job()
 
     # Tidsplan
