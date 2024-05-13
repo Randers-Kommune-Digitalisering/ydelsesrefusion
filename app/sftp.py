@@ -3,9 +3,13 @@ import base64
 import pysftp
 import fnmatch
 import warnings
+import io
+import pandas as pd
 
 from utils.config import SFTP_HOST, SFTP_USER, SSH_KEY_BASE64, SSH_KEY_PASS, REMOTE_DIR
 from utils.logging import get_logger
+from utils.custom_data_api import post_to_custom_data_connector
+
 
 logger = get_logger(__name__)
 warnings.filterwarnings('ignore', '.*Failed to load HostKeys.*')
@@ -31,13 +35,21 @@ def list_all_files():
     sftp = pysftp.Connection(host=SFTP_HOST, username=SFTP_USER, private_key=key_path, private_key_pass=SSH_KEY_PASS, cnopts=cnopts)
 
     # filter away directorires and files without file extensions
-    filelist = [f for f in sftp.listdir(REMOTE_DIR) if fnmatch.fnmatch(f, '*.csv')]
+    filelist = [f for f in sftp.listdir(REMOTE_DIR) if fnmatch.fnmatch(f, 'yr-ydelsesrefusion-beregning*.csv')]
+    
+    # Beholder kun seneste fil 
+    filelist = [filelist[-1]]
     return filelist, sftp
 
 
 def handle_files(files, connection):
     for filename in files:
         with connection.open(os.path.join(REMOTE_DIR, filename).replace("\\", "/")) as f:
-            # TODO: Do something useful with the files - NOTE: if saving to disk, it should be on an external mount
-            # Just printing the first line of the file
-            logger.info(f.readline())
+            df = pd.read_csv(f,sep=";",header=0)  
+            df2=df.groupby(['Uge','Ydelse'])['CPR nummer'].count().to_frame().reset_index()
+            
+            # Skriver til Custom Data (kun en fil for nu)
+            data=io.BytesIO(df2.to_csv(index=False).encode('utf-8'))
+            post_to_custom_data_connector("ØKTestdata", data.getbuffer())
+
+            logger.info(f'Updated {"ØKTestdata"}')
