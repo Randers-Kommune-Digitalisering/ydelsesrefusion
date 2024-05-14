@@ -50,6 +50,6 @@ def handle_files(files, connection):
             
             # Skriver til Custom Data (kun en fil for nu)
             data=io.BytesIO(df2.to_csv(index=False, sep=';').encode('utf-8'))
-            post_to_custom_data_connector("ØKTestdata", data.getbuffer())
+            post_to_custom_data_connector("SAYdelsesrefusion", data.getbuffer())
 
-            logger.info(f'Updated {"ØKTestdata"}')
+            logger.info(f'Updated {"SAYdelsesrefusion"}')
