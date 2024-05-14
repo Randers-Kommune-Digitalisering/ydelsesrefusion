@@ -5,7 +5,7 @@ import urllib.parse
 from utils.config import CUSTOM_DATA_CONNECTOR_HOST
 
 def post_to_custom_data_connector(filename, file):
-    encoded_filename = urllib.parse.quote(filename)
+    encoded_filename = urllib.parse.quote(filename + '.csv')
     headers = {'overwrite': 'true'}
     multipart_form_data = {'file': (encoded_filename, file, 'text/csv')}
 

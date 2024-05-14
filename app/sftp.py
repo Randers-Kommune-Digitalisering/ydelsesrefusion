@@ -49,7 +49,7 @@ def handle_files(files, connection):
             df2=df.groupby(['Uge','Ydelse'])['CPR nummer'].count().to_frame().reset_index()
             
             # Skriver til Custom Data (kun en fil for nu)
-            data=io.BytesIO(df2.to_csv(index=False).encode('utf-8'))
+            data=io.BytesIO(df2.to_csv(index=False, sep=';').encode('utf-8'))
             post_to_custom_data_connector("ØKTestdata", data.getbuffer())
 
             logger.info(f'Updated {"ØKTestdata"}')
