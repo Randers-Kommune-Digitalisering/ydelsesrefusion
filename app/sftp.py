@@ -5,6 +5,8 @@ import fnmatch
 import warnings
 import io
 import pandas as pd
+import datetime
+from datetime import timedelta
 
 from utils.config import SFTP_HOST, SFTP_USER, SSH_KEY_BASE64, SSH_KEY_PASS, REMOTE_DIR
 from utils.logging import get_logger
@@ -37,19 +39,44 @@ def list_all_files():
     # filter away directorires and files without file extensions
     filelist = [f for f in sftp.listdir(REMOTE_DIR) if fnmatch.fnmatch(f, 'yr-ydelsesrefusion-beregning*.csv')]
     
+    logger.info(filelist)
+    
     # Beholder kun seneste fil 
-    filelist = [filelist[-1]]
+    #filelist = [filelist[-1]]
     return filelist, sftp
 
 
 def handle_files(files, connection):
+
+    # Finder relevante filer ud fra dato på seneste fil
+    senesteFil=files[-1]
+    dato=datetime.datetime(int(senesteFil[-14:-10]), int(senesteFil[-9:-7]), 1)
+    maxDato=dato-timedelta(days=1)
+    minDato=datetime.datetime(dato.year-1,(dato.month % 12) + 1, dato.day)
+
+    logger.info(f'Dato {dato} - fra: {minDato}, til: {maxDato}')
+
+    # Definerer tom dataframe
+    df_appended=pd.DataFrame()
+
     for filename in files:
         with connection.open(os.path.join(REMOTE_DIR, filename).replace("\\", "/")) as f:
-            df = pd.read_csv(f,sep=";",header=0)  
-            df2=df.groupby(['Uge','Ydelse'])['CPR nummer'].count().to_frame().reset_index()
-            
-            # Skriver til Custom Data (kun en fil for nu)
-            data=io.BytesIO(df2.to_csv(index=False, sep=';').encode('utf-8'))
-            post_to_custom_data_connector("SAYdelsesrefusion", data.getbuffer())
 
-            logger.info(f'Updated {"SAYdelsesrefusion"}')
+            # Indlæser filen hvis datoen på filen er sammenfaldende eller ligger før minDato
+            datoCurrentFile=datetime.datetime(int(filename[-14:-10]), int(filename[-9:-7]), 1)
+            if datoCurrentFile>=minDato:
+                logger.info(filename)
+
+                # df = pd.read_csv(f,sep=";",header=0)  
+                # df = df.groupby(['Uge','Ydelse'])['CPR nummer'].count().to_frame().reset_index()
+
+                # df_appended=pd.concat([df_appended, df], ignore_index=True)
+
+        
+            # Skriver til Custom Data (kun en fil for nu)
+            # data=io.BytesIO(df2.to_csv(index=False, sep=';').encode('utf-8'))
+            # post_to_custom_data_connector("SAYdelsesrefusion", data.getbuffer())
+
+            # logger.info(f'Updated {"SAYdelsesrefusion"}')
+
+    df_appended.to_csv("test.csv", index=False)
