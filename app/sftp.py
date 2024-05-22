@@ -49,11 +49,11 @@ def list_all_files():
 
 def handle_files(files, connection):
 
-    # Finder relevante filer ud fra dato på seneste fil - går pt 1 år tilbage
+    # Finder relevante filer ud fra dato på seneste fil - går pt 2 år tilbage
     senesteFil=files[-1]
     dato=datetime.date(int(senesteFil[-14:-10]), int(senesteFil[-9:-7]), 1)
     maxDato=dato-timedelta(days=1)
-    minDato=datetime.date(dato.year-1,(dato.month % 12) + 1, dato.day)
+    minDato=datetime.date(dato.year-2,(dato.month % 12) + 1, dato.day)
 
     logger.info('-PERIODEAFGRÆNSNING---------------------------------')
     logger.info(f'Første dag i måneden i seneste data: {dato}')
